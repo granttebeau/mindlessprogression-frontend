@@ -21,12 +21,14 @@ class MindlessPlay extends React.Component {
         drew: false, 
         deck: [], 
         hand: [], 
+        opponentHand: [],
         nextCard: [],
         lastTurn: false,
         wonRound: false,
         picked: false, 
         playerScore: 0,
-        opponentScore: 0
+        opponentScore: 0,
+        gameOver: false
       };
 
       this.handleSelect = this.handleSelect.bind(this);
@@ -36,6 +38,7 @@ class MindlessPlay extends React.Component {
       this.throwAwayCard = this.throwAwayCard.bind(this);
       this.openNextRound = this.openNextRound.bind(this);
       this.getPoints = this.getPoints.bind(this);
+      this.playAgain = this.playAgain.bind(this);
     }
   
     componentDidMount() {
@@ -63,6 +66,17 @@ class MindlessPlay extends React.Component {
         }
       })
 
+      socket.on("game restarted", (game) => {
+        if (socket.id === game.id) {
+          self.setState({
+            turn: "YOUR TURN",
+            gameOver: false,
+            turnsLeft: game.turns,
+            chosenTurn: '3', 
+          })
+        }
+      })
+
       socket.on("your turn", (hand) => {
         this.setState({
           turn: true,
@@ -79,7 +93,8 @@ class MindlessPlay extends React.Component {
           drew: false,
           deck: hand.deck, 
           nextCard: hand.nextCard, 
-          opponentScore: this.state.opponentScore + hand.winnerScore
+          opponentScore: this.state.opponentScore + hand.winnerScore, 
+          opponentHand: hand.winnerHand
         })
       })
 
@@ -125,6 +140,15 @@ class MindlessPlay extends React.Component {
       this.setState({chosenTurn: event.target.value});
     }
 
+    playAgain() {
+      this.setState({
+        gameOver: false
+      }, () => {
+        socket.emit("restart game", {playerOne: socket.id, playerTwo: this.state.opponent.id, room: sessionStorage.getItem("room")});
+        
+      })
+    }
+
     openNextRound() {
       confirmAlert({
         title: 'Scores',
@@ -144,15 +168,25 @@ class MindlessPlay extends React.Component {
     }
 
     setUpNextRound() {
+      if (this.state.turnsLeft.length === 0) {
+        this.setState({
+          picked: !this.state.picked,
+          roundStarted: false,
+          turn: !this.state.picked,
+          wonRound: false, 
+          chosenTurn: this.state.turnsLeft[0],
+          gameOver: true
+        })
+      }
+      else {
         this.setState({
           picked: !this.state.picked,
           roundStarted: false,
           turn: !this.state.picked,
           wonRound: false, 
           chosenTurn: this.state.turnsLeft[0]
-        }, () => {
-          console.log(this.state);
         })
+      }
     }
 
     pickRound() {
@@ -209,7 +243,7 @@ class MindlessPlay extends React.Component {
               wonRound: true
             })
         
-            socket.emit("last turn", { nextPlayer: sessionStorage.getItem("opponent_id"), deck: this.state.deck, nextCard: this.state.nextCard, room: sessionStorage.getItem("room"), winnerScore: 0 });
+            socket.emit("last turn", { nextPlayer: sessionStorage.getItem("opponent_id"), deck: this.state.deck, nextCard: this.state.nextCard, room: sessionStorage.getItem("room"), winnerScore: 0, winnerHand: this.state.hand });
           }
           else if (!this.state.lastTurn) {
             socket.emit("your turn", { nextPlayer: sessionStorage.getItem("opponent_id"), deck: this.state.deck, nextCard: this.state.nextCard, room: sessionStorage.getItem("room") });
@@ -284,7 +318,6 @@ class MindlessPlay extends React.Component {
       return score;
     }
 
-    // TO DO: once the game is won, show the other person's cards
     hasWon() {
     
       let tempHand = [...this.state.hand],
@@ -376,9 +409,9 @@ class MindlessPlay extends React.Component {
       let arr = cards.filter(card => this.cardSetEquals(card, cur));
       if (arr.length === 2) {
         return cards.filter(card => this.wildCard(card)).length >= 1;
-
       }
       else  {
+        console.log(arr.length >= 3);
         return arr.length >= 3;
       } 
     }
@@ -418,7 +451,7 @@ class MindlessPlay extends React.Component {
 
     straight(cur, cards) {
       cards = [...cards]; 
-      let arr = cards.filter(card => this.cardSuitEquals(card, cur));
+      let arr = cards.filter(card => this.cardSuitEquals(card, cur) && !this.wildCard(card));
       let wildCards = cards.filter(card => this.wildCard(card));
       arr.sort((a, b) => this.cardNums(a.number) - this.cardNums(b.number));
 
@@ -429,7 +462,7 @@ class MindlessPlay extends React.Component {
         let highest = 1, 
             current = 1,
             last = arr[0];
-        for (var i = 1; i < arr.length; i++ ) {
+        for (var i = 1; i < arr.length; i++) {
           if (this.cardNums(arr[i].number) === this.cardNums(last.number) + 1) {
             current++;
             highest = Math.max(current, highest);
@@ -496,7 +529,18 @@ class MindlessPlay extends React.Component {
 
     render() {
       let value;
-      if (this.state.roundStarted) {
+      if (this.state.gameOver) {
+        value = (
+          <div>
+            <h4>GAME OVER</h4>
+            {this.state.playerScore < this.state.opponentScore ? <h1>YOU WON</h1> : <h1>YOU LOST</h1>}
+            <li className="results"><h4>You: {this.state.playerScore}</h4></li>
+            <li className="results"><h4>{this.state.opponent.name}: {this.state.opponentScore}</h4></li>
+            <button onClick={this.playAgain}>Play again</button>
+          </div>
+        )
+      }
+      else if (this.state.roundStarted) {
 
         value = (
           <div>
@@ -513,7 +557,7 @@ class MindlessPlay extends React.Component {
         
         )
       }
-      else if (!!this.state.turn && this.state.turnsLeft.length > 1) {
+      else if (!!this.state.turn && this.state.turnsLeft.length > 0) {
         value = <div>
             <select value={this.state.chosenTurn} onChange={this.handleSelect}>
             {this.state.turnsLeft.map((turn, ind) => <option key={ind} value={turn}>{turn}</option>)}
@@ -531,6 +575,13 @@ class MindlessPlay extends React.Component {
           <h1>Play Mindless Progression</h1>
           <p>Name: {this.state.name}</p>
           <p>Opponent: {this.state.opponent.name}</p>
+
+          {this.state.lastTurn && 
+          <div>
+            <h1>{sessionStorage.getItem("opponent_name")} won!</h1>
+            <DisplayHand hand={this.state.opponentHand} throwAway={this.throwAwayCard}></DisplayHand>
+          </div>
+          }
 
           {this.state.wonRound && <h1>You won this round!</h1>}
 
