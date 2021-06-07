@@ -15,7 +15,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '8', 
+        chosenTurn: '3', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
