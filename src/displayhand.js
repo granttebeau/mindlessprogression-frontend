@@ -19,7 +19,7 @@ class DisplayHand extends Component {
       let cards = this.props.hand.map((card, ind) =>
       <li className="card" key={uuid()}>
         {/* {card.number + card.suit} */}
-        <img src={'http://localhost:3000/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.props.throwAway(ind) }}></img>
+        <img src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.props.throwAway(ind) }}></img>
       </li>
     );
       return (

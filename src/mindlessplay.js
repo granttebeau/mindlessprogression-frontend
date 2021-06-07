@@ -504,7 +504,7 @@ class MindlessPlay extends React.Component {
             <div className="deck">
               <img src={process.env.PUBLIC_URL + '/cards/back.png'} onClick={this.drawCard}></img>
               {!!this.state.nextCard.length ? 
-                <img src={'http://localhost:3000/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard}></img> 
+                <img src={process.env.PUBLIC_URL + '/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard}></img> 
                 : <div></div>}
             </div>
             
