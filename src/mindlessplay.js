@@ -8,6 +8,7 @@ import {confirmAlert} from 'react-confirm-alert';
 import 'react-confirm-alert/src/react-confirm-alert.css'; // Import css
 
 
+// TO DO: on game restart, add option to where if one user says restart game, the other has to confirm
 class MindlessPlay extends React.Component {
     constructor(props) {
       super(props);
@@ -529,6 +530,7 @@ class MindlessPlay extends React.Component {
 
     render() {
       let value;
+      console.log("PROCESS", process.env);
       if (this.state.gameOver) {
         value = (
           <div>
