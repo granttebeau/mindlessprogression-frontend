@@ -1,0 +1,10 @@
+
+.deck {
+    display: inline-block;
+}
+
+.deck img {
+    display: inline;
+    float: left;
+    cursor: pointer;
+}

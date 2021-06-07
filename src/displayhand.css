@@ -1,0 +1,14 @@
+img {
+    width: 100px;
+    height: auto;
+}
+
+ul.cards {
+    list-style: none;
+    display: inline-block;
+}
+
+ul.cards li {
+    display: inline;
+    float: left;
+}
