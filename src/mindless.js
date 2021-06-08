@@ -67,7 +67,7 @@ class Mindless extends Component {
       })
 
       socket.on("join game", (game) => {
-        console.log("JOIN GAME");
+        console.log(game);
         self.setState({
           invite: true,
           inviteGame: game
@@ -82,13 +82,12 @@ class Mindless extends Component {
         <div className="App">
           <p>Name: {this.state.name}</p>
         
-          <select value={this.state.selectValue} onChange={this.handleSelect}>
+          <select class="form-select form-select-sm select-form" value={this.state.selectValue} onChange={this.handleSelect}>
             {this.state.users.map((usr, ind) => <option key={ind} value={usr.id}>{usr.name}</option>)}
           </select>
-            {/* <a onClick={this.joinGame} style={{cursor: 'pointer'}}>Join Game</a> */}
             {!!this.state.selectValue ? <Link to={'/play'} onClick={this.joinGame}>Join Game</Link> : <p>Join Game</p>}
-
-            {!!this.state.invite ? <Link to={'/play'} onClick={this.accept}>Accept Invite</Link> : <span></span>}
+            <br></br>
+            {!!this.state.invite ? <Link to={'/play'} onClick={this.accept}>Accept Invite from {this.state.inviteGame.playerOne_name}</Link> : <span></span>}
         </div>
       );
     }

@@ -40,3 +40,8 @@
 .results {
   display: block !important;
 }
+
+.select-form {
+  width: 100px !important;
+  margin: 0 auto !important;
+}

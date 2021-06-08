@@ -55,14 +55,8 @@ class DisplayHand extends Component {
     }
 
     throwAway(card) {
-      console.log("THROW AWAY", card);
-      //empHand.findIndex(card => this.wildCard(card))
       let index = this.state.hand.findIndex(cur => cur.suit === card.suit && cur.number === card.number);
       this.state.hand.splice(index, 1);
-      // this.setState({
-      //   hand: this.state.hand.splice
-      // })
-      console.log(this.state);
       this.props.throwAway(card)
     }
 
@@ -75,7 +69,6 @@ class DisplayHand extends Component {
         <Draggable key={id} draggableId={id} index={ind}>
         {(provided) => (
           <li className="card" key={id} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-          {/* {card.number + card.suit} */}
           <img src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.throwAway(card) }}></img>
         </li>
         )}

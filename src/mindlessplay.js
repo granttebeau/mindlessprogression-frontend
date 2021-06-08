@@ -206,7 +206,6 @@ class MindlessPlay extends React.Component {
         this.setState({
           drew: true
         }, () => {
-          console.log(nextCard);
           let nextCard = this.state.deck.shift();
 
           this.setState({
@@ -547,7 +546,7 @@ class MindlessPlay extends React.Component {
             {this.state.playerScore < this.state.opponentScore ? <h1>YOU WON</h1> : <h1>YOU LOST</h1>}
             <li className="results"><h4>You: {this.state.playerScore}</h4></li>
             <li className="results"><h4>{this.state.opponent.name}: {this.state.opponentScore}</h4></li>
-            <button onClick={this.playAgain}>Play again</button>
+            <button class="btn btn-primary" onClick={this.playAgain}>Play again</button>
           </div>
         )
       }
@@ -570,10 +569,10 @@ class MindlessPlay extends React.Component {
       }
       else if (!!this.state.turn && this.state.turnsLeft.length > 0) {
         value = <div>
-            <select value={this.state.chosenTurn} onChange={this.handleSelect}>
+            <select class="form-select form-select-sm select-form" value={this.state.chosenTurn} onChange={this.handleSelect}>
             {this.state.turnsLeft.map((turn, ind) => <option key={ind} value={turn}>{turn}</option>)}
           </select>
-          <button onClick={this.pickRound}>Pick round</button>
+          <button class="btn btn-primary" onClick={this.pickRound}>Pick round</button>
           </div>
       }
       else {
