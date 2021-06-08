@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 
 import { Link } from 'react-router-dom';
 import './App.css';
+import './mindlessplay.css'
 import {socket} from './service/socket';
 import DisplayHand from './displayhand';
 import {confirmAlert} from 'react-confirm-alert';
@@ -201,11 +202,11 @@ class MindlessPlay extends React.Component {
     }
 
     drawCard() {
-
       if (this.state.turn && !this.state.drew) {
         this.setState({
           drew: true
         }, () => {
+          console.log(nextCard);
           let nextCard = this.state.deck.shift();
 
           this.setState({
@@ -229,8 +230,9 @@ class MindlessPlay extends React.Component {
       }
     }
 
-    throwAwayCard(ind) {
+    throwAwayCard(card) {
       
+      let ind = this.state.hand.findIndex(cur => cur.suit === card.suit && cur.number === card.number);
       if (this.state.turn && this.state.drew && !this.state.lastTurn) {
         let card = this.state.hand.splice(ind, 1)
         this.setState({
@@ -555,9 +557,9 @@ class MindlessPlay extends React.Component {
           <div>
             {this.state.turn ? <h1>Your Turn</h1> : <h1>{sessionStorage.getItem("opponent_name")}'s turn</h1>}
             <div className="deck">
-              <img src={process.env.PUBLIC_URL + '/cards/back.png'} onClick={this.drawCard}></img>
+              <img src={process.env.PUBLIC_URL + '/cards/back.png'} onClick={this.drawCard} className="draw-pile"></img>
               {!!this.state.nextCard.length ? 
-                <img src={process.env.PUBLIC_URL + '/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard}></img> 
+                <img src={process.env.PUBLIC_URL + '/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard} className="draw-card"></img> 
                 : <div></div>}
             </div>
             

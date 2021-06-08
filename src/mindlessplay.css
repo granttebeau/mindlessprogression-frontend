@@ -8,3 +8,11 @@
     float: left;
     cursor: pointer;
 }
+.draw-pile {
+    height: 150px !important;
+}
+
+.draw-card {
+    position: relative;
+    top: 1px;
+}
