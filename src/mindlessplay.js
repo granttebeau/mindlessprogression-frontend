@@ -16,7 +16,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '3', 
+        chosenTurn: '5', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
@@ -339,6 +339,7 @@ class MindlessPlay extends React.Component {
       });
       tempHand = nonWild.concat(wild);
       
+      console.log(tempHand);
       while (!goneThrough) {
         let card = tempHand[i];
         // TO DO: need to consider other cards-ie, if i have 9 10 J, and then three Js
@@ -365,7 +366,13 @@ class MindlessPlay extends React.Component {
         }
         else if (this.straight(card, tempHand)) {
           let curSet = this.getStraight(card, tempHand);
-          tempHand = tempHand.filter(card1 => curSet.findIndex(card2 => card1.suit === card2.suit && card1.number === card2.number) < 0);
+          
+          for (var j = 0; j < curSet.length; j++) {
+            let card = curSet[j];
+            let ind = tempHand.findIndex(cur => card.suit === cur.suit && card.number === cur.number)
+            tempHand.splice(ind, 1);
+          }
+
           if (curSet.length === 2) {
             tempHand.splice(tempHand.findIndex(card => this.wildCard(card)), 1);
           }
@@ -434,7 +441,7 @@ class MindlessPlay extends React.Component {
           last = arr[i];
           i++;
         }
-        else if (i < arr.length && this.cardNums(arr[i].number) - wildCards.length <= this.cardNums(last.number) + 1) {
+        else if (i < arr.length && this.cardNums(arr[i].number) !== this.cardNums(last.number) && this.cardNums(arr[i].number) - wildCards.length <= this.cardNums(last.number) + 1) {
           let inc = this.cardNums(arr[i].number) - (this.cardNums(last.number) + 1);
           for (var j = 0; j < inc; j++) {
             curSet.push(wildCards.pop());
@@ -451,11 +458,12 @@ class MindlessPlay extends React.Component {
     }
 
     straight(cur, cards) {
+      console.log("STRAIGHT");
       cards = [...cards]; 
       let arr = cards.filter(card => this.cardSuitEquals(card, cur) && !this.wildCard(card));
       let wildCards = cards.filter(card => this.wildCard(card));
       arr.sort((a, b) => this.cardNums(a.number) - this.cardNums(b.number));
-
+      // return false;
       if (arr.length < 3 && wildCards.length === 0) {
         return false;
       }
@@ -469,7 +477,7 @@ class MindlessPlay extends React.Component {
             highest = Math.max(current, highest);
             last = arr[i];
           }
-          else if (this.cardNums(arr[i].number) - wildCards.length <= this.cardNums(last.number) + 1) {
+          else if (this.cardNums(arr[i].number) !== this.cardNums(last.number) && this.cardNums(arr[i].number) - wildCards.length <= this.cardNums(last.number) + 1) {
             let inc = this.cardNums(arr[i].number) - this.cardNums(last.number) + 1;
             current += inc;
             highest = Math.max(current, highest);
@@ -484,7 +492,7 @@ class MindlessPlay extends React.Component {
         }
 
         if (highest === 2) {
-          return wildCards.length;
+          return wildCards.length >= 1;
         }
         else {
           return highest >= 3;
@@ -530,7 +538,6 @@ class MindlessPlay extends React.Component {
 
     render() {
       let value;
-      console.log("PROCESS", process.env);
       if (this.state.gameOver) {
         value = (
           <div>
