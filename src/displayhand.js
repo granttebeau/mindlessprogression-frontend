@@ -21,13 +21,6 @@ class DisplayHand extends Component {
           hand: this.state.hand.concat(this.props.hand[this.props.hand.length - 1])
         })
       }
-      
-      // if (prevProps.text !== this.props.text) {
-      //   this.updateAndNotify();
-      // }
-    }
-  
-    componentDidMount() {
     }
 
     reorder(list, startIndex, endIndex) {
@@ -69,7 +62,7 @@ class DisplayHand extends Component {
         <Draggable key={id} draggableId={id} index={ind}>
         {(provided) => (
           <li className="card" key={id} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-          <img src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.throwAway(card) }}></img>
+          <img alt={'card ' + card.number + card.suit} src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.throwAway(card) }}></img>
         </li>
         )}
       </Draggable>

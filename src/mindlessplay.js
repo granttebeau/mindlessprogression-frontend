@@ -1,6 +1,4 @@
-import React, { Component } from 'react';
-
-import { Link } from 'react-router-dom';
+import React from 'react';
 import './App.css';
 import './mindlessplay.css'
 import {socket} from './service/socket';
@@ -17,7 +15,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '5', 
+        chosenTurn: '3', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
@@ -29,7 +27,10 @@ class MindlessPlay extends React.Component {
         wonRound: false,
         picked: false, 
         playerScore: 0,
+        playerScores: [],
         opponentScore: 0,
+        opponentScores: [],
+        rounds: [],
         gameOver: false
       };
 
@@ -41,6 +42,7 @@ class MindlessPlay extends React.Component {
       this.openNextRound = this.openNextRound.bind(this);
       this.getPoints = this.getPoints.bind(this);
       this.playAgain = this.playAgain.bind(this);
+      this.openFullScore = this.openFullScore.bind(this);
     }
   
     componentDidMount() {
@@ -101,16 +103,21 @@ class MindlessPlay extends React.Component {
       })
 
       socket.on("finished round", (hand) => {
+        let self = this.state;
         if (this.state.wonRound) {
           this.setState({
-            opponentScore: this.state.opponentScore + hand.loserScore
+            opponentScore: self.opponentScore + hand.loserScore, 
+            opponentScores: self.opponentScores.concat(self.opponentScore + hand.loserScore),
+            playerScores: self.playerScores.concat(!!self.playerScores[self.playerScores.length - 1] ? self.playerScores[self.playerScores.length - 1] : self.playerScore)
           }, () => {
             this.openNextRound();
           })
         }
         else {
           this.setState({
-            playerScore: this.state.playerScore + hand.loserScore
+            playerScore: self.playerScore + hand.loserScore,
+            opponentScores: self.opponentScores.concat(!!self.opponentScores[self.opponentScores.length - 1] ? self.opponentScores[self.opponentScores.length - 1] : self.opponentScore),
+            playerScores: self.playerScores.concat(self.playerScore + hand.loserScore)
           }, () => {
             this.openNextRound();
           })
@@ -127,15 +134,12 @@ class MindlessPlay extends React.Component {
           turn: hand.turn,
           nextCard: [nextCard],
           turnsLeft: hand.roundsLeft,
-          chosenTurn: hand.round
+          chosenTurn: hand.round,
+          rounds: this.state.rounds.concat(hand.round)
         }, () => {
           sessionStorage.setItem("room", hand.room)
         })
       })
-    }
-
-    home() {
-      window.location.href = "/";
     }
 
     handleSelect(event) {
@@ -149,6 +153,43 @@ class MindlessPlay extends React.Component {
         socket.emit("restart game", {playerOne: socket.id, playerTwo: this.state.opponent.id, room: sessionStorage.getItem("room")});
         
       })
+    }
+
+    openFullScore() {
+      let rounds = [];
+      for (var i = 0; i < this.state.rounds.length; i++) {
+        rounds.push(<tr key="uuid()">
+          <td>{this.state.rounds[i]}</td>
+          <td>{this.state.playerScores[i]}</td>
+          <td>{this.state.opponentScores[i]}</td>
+      </tr>)
+      }
+      console.log(this.state.rounds);
+
+      confirmAlert({
+        title: "Scores",
+        buttons: [
+          {
+            label: "Close",
+          },
+        ],
+        childrenElement: () => (
+          <div>
+            <table cellSpacing="0" cellPadding="0">
+              <thead>
+                <tr>
+                  <th>Round</th>
+                  <th>{this.state.name}</th>
+                  <th>{this.state.opponent.name}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {rounds}
+              </tbody>
+            </table>
+          </div>
+        ),
+      });
     }
 
     openNextRound() {
@@ -186,7 +227,7 @@ class MindlessPlay extends React.Component {
           roundStarted: false,
           turn: !this.state.picked,
           wonRound: false, 
-          chosenTurn: this.state.turnsLeft[0]
+          chosenTurn: this.state.turnsLeft[0],
         })
       }
     }
@@ -459,12 +500,10 @@ class MindlessPlay extends React.Component {
     }
 
     straight(cur, cards) {
-      console.log("STRAIGHT");
       cards = [...cards]; 
       let arr = cards.filter(card => this.cardSuitEquals(card, cur) && !this.wildCard(card));
       let wildCards = cards.filter(card => this.wildCard(card));
       arr.sort((a, b) => this.cardNums(a.number) - this.cardNums(b.number));
-      // return false;
       if (arr.length < 3 && wildCards.length === 0) {
         return false;
       }
@@ -483,7 +522,7 @@ class MindlessPlay extends React.Component {
             current += inc;
             highest = Math.max(current, highest);
             last = arr[i];
-            for (var i = 0; i < inc; i++) {
+            for (var j = 0; j < inc; j++) {
               wildCards.pop();
             }
           }
@@ -546,7 +585,7 @@ class MindlessPlay extends React.Component {
             {this.state.playerScore < this.state.opponentScore ? <h1>YOU WON</h1> : <h1>YOU LOST</h1>}
             <li className="results"><h4>You: {this.state.playerScore}</h4></li>
             <li className="results"><h4>{this.state.opponent.name}: {this.state.opponentScore}</h4></li>
-            <button class="btn btn-primary" onClick={this.playAgain}>Play again</button>
+            <button className="btn btn-primary" onClick={this.playAgain}>Play again</button>
           </div>
         )
       }
@@ -556,9 +595,9 @@ class MindlessPlay extends React.Component {
           <div>
             {this.state.turn ? <h1>Your Turn</h1> : <h1>{sessionStorage.getItem("opponent_name")}'s turn</h1>}
             <div className="deck">
-              <img src={process.env.PUBLIC_URL + '/cards/back.png'} onClick={this.drawCard} className="draw-pile"></img>
+              <img alt="draw pile" src={process.env.PUBLIC_URL + '/cards/back.png'} onClick={this.drawCard} className="draw-pile"></img>
               {!!this.state.nextCard.length ? 
-                <img src={process.env.PUBLIC_URL + '/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard} className="draw-card"></img> 
+                <img alt="next card" src={process.env.PUBLIC_URL + '/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard} className="draw-card"></img> 
                 : <div></div>}
             </div>
             
@@ -569,22 +608,28 @@ class MindlessPlay extends React.Component {
       }
       else if (!!this.state.turn && this.state.turnsLeft.length > 0) {
         value = <div>
-            <select class="form-select form-select-sm select-form" value={this.state.chosenTurn} onChange={this.handleSelect}>
+            <select className="form-select form-select-sm select-form" value={this.state.chosenTurn} onChange={this.handleSelect}>
             {this.state.turnsLeft.map((turn, ind) => <option key={ind} value={turn}>{turn}</option>)}
           </select>
-          <button class="btn btn-primary" onClick={this.pickRound}>Pick round</button>
+          <br></br>
+          <button className="btn btn-primary" onClick={this.pickRound}>Pick round</button>
           </div>
       }
-      else {
-        value = <h1>Not your turn</h1>
+      else if (!this.state.roundStarted) {
+        value = <h1>Waiting for {this.state.opponent.name} to pick the round...</h1>
       }
       
       return (
         <div className="App">
-          <a onClick={this.home} style={{cursor: 'pointer'}}>Home</a>
           <h1>Play Mindless Progression</h1>
-          <p>Name: {this.state.name}</p>
-          <p>Opponent: {this.state.opponent.name}</p>
+
+          {!!this.state.chosenTurn && this.state.roundStarted && <h4>Round: {this.state.chosenTurn}</h4>}
+          <div style={{marginTop: '40px', height: '40px'}}>
+            <p style={{float: 'left', marginLeft: '100px'}}>{this.state.name}: {this.state.playerScore}</p>
+            <a onClick={this.openFullScore} style={{width: '20%', left: '40%', position: 'absolute', cursor: 'pointer', textDecoration: 'underline'}}>Full Score</a>
+            <p style={{float: 'right', marginRight: '100px'}}>{this.state.opponent.name}: {this.state.opponentScore}</p>
+          </div>
+          
 
           {this.state.lastTurn && 
           <div>
@@ -594,9 +639,7 @@ class MindlessPlay extends React.Component {
           }
 
           {this.state.wonRound && <h1>You won this round!</h1>}
-
-          <p>{this.state.turn}</p>
-
+          <br></br>
           {value}
         </div>
       );

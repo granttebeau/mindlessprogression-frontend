@@ -82,10 +82,12 @@ class Mindless extends Component {
         <div className="App">
           <p>Name: {this.state.name}</p>
         
-          <select class="form-select form-select-sm select-form" value={this.state.selectValue} onChange={this.handleSelect}>
+          <br></br>
+          <p>Select Opponent:</p>
+          <select className="form-select form-select-sm select-form" value={this.state.selectValue} onChange={this.handleSelect}>
             {this.state.users.map((usr, ind) => <option key={ind} value={usr.id}>{usr.name}</option>)}
           </select>
-            {!!this.state.selectValue ? <Link to={'/play'} onClick={this.joinGame}>Join Game</Link> : <p>Join Game</p>}
+            {!!this.state.selectValue && <Link to={'/play'} onClick={this.joinGame}>Join Game</Link>}
             <br></br>
             {!!this.state.invite ? <Link to={'/play'} onClick={this.accept}>Accept Invite from {this.state.inviteGame.playerOne_name}</Link> : <span></span>}
         </div>
