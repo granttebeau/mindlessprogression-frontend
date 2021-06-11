@@ -179,7 +179,7 @@ class MindlessPlay extends React.Component {
               <thead>
                 <tr>
                   <th>Round</th>
-                  <th>{this.state.name}</th>
+                  <th>You</th>
                   <th>{this.state.opponent.name}</th>
                 </tr>
               </thead>
@@ -203,8 +203,8 @@ class MindlessPlay extends React.Component {
         ],
         childrenElement: () => (<div>
             <ul className="results">
-              <li className="results"><h4>You: {this.state.playerScore}</h4></li>
-              <li className="results"><h4>{this.state.opponent.name}: {this.state.opponentScore}</h4></li>
+              <li className="results"><p>You: {this.state.playerScore}</p></li>
+              <li className="results"><p>{this.state.opponent.name}: {this.state.opponentScore}</p></li>
             </ul>
           </div> ),
       });
@@ -625,7 +625,7 @@ class MindlessPlay extends React.Component {
 
           {!!this.state.chosenTurn && this.state.roundStarted && <h4>Round: {this.state.chosenTurn}</h4>}
           <div style={{marginTop: '40px', height: '40px'}}>
-            <p style={{float: 'left', marginLeft: '100px'}}>{this.state.name}: {this.state.playerScore}</p>
+            <p style={{float: 'left', marginLeft: '100px'}}>{this.state.name} (You): {this.state.playerScore}</p>
             <a onClick={this.openFullScore} style={{width: '20%', left: '40%', position: 'absolute', cursor: 'pointer', textDecoration: 'underline'}}>Full Score</a>
             <p style={{float: 'right', marginRight: '100px'}}>{this.state.opponent.name}: {this.state.opponentScore}</p>
           </div>
