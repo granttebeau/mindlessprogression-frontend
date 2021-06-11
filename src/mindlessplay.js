@@ -15,7 +15,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '3', 
+        chosenTurn: '6', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
@@ -381,17 +381,37 @@ class MindlessPlay extends React.Component {
       });
       tempHand = nonWild.concat(wild);
       
-      console.log(tempHand);
       while (!goneThrough) {
         let card = tempHand[i];
-        // TO DO: need to consider other cards-ie, if i have 9 10 J, and then three Js
-        // could potentially only separate them out by 3s, and then if the additional cards belong to a set of three, add them to that
-        
+
         if (this.set(card, tempHand)) {
-          let curSet = [...tempHand.filter(val => this.cardSetEquals(val, card))];
-          tempHand = tempHand.filter(val => !this.cardSetEquals(val, card));
+          let curSetTemp = [...tempHand.filter(val => this.cardSetEquals(val, card))], 
+              curSet = [];
+          for (var j = 0; j < curSetTemp.length; j++) {
+            let sameSuits = [...tempHand.filter(val => this.cardSuitEquals(val, curSetTemp[j]) && !this.cardSetEquals(val, curSetTemp[j]) && !this.wildCard(val))]
+            sameSuits = sameSuits.concat(tempHand.filter(val => this.wildCard(val)));
+            console.log(sameSuits);
+            if (sameSuits.length < 2) {
+              curSet.push(curSetTemp[j]);
+            }
+          }
+
+
+          for (var j = 0; j < curSet.length; j++) {
+            let card = curSet[j];
+            let ind = tempHand.findIndex(cur => card.suit === cur.suit && card.number === cur.number)
+            tempHand.splice(ind, 1);
+          }
+
           if (curSet.length === 2) {
-            tempHand.splice(tempHand.findIndex(card => this.wildCard(card)), 1);
+            let left = [...tempHand.filter(val => this.cardSetEquals(val, card))];
+            if (left.length > 0) {
+              let ind = tempHand.findIndex(val => this.cardSetEquals(val, card))
+              tempHand.splice(ind, 1);
+            }
+            else {
+              tempHand.splice(tempHand.findIndex(card => this.wildCard(card)), 1);
+            }
           }
 
           if (tempHand.length === 0) {
@@ -544,20 +564,15 @@ class MindlessPlay extends React.Component {
     cardNums(round) {
       if (!!parseInt(round)) {
         return parseInt(round);
-      }
-      else if (round === 'J') {
+      } else if (round === 'J') {
         return 11;
-      }
-      else if (round === 'A') {
+      } else if (round === 'A') {
         return 1;
-      }
-      else if (round === 'Q') {
+      } else if (round === 'Q') {
         return 12;
-      }
-      else if (round === 'K') {
+      } else if (round === 'K') {
         return 13;
-      }
-      else {
+      } else {
         return 20;
       }
     }
