@@ -380,6 +380,8 @@ class MindlessPlay extends React.Component {
         }
       });
       tempHand = nonWild.concat(wild);
+
+      let overload = 0;
       
       while (!goneThrough) {
         let card = tempHand[i];
@@ -452,6 +454,11 @@ class MindlessPlay extends React.Component {
           
         }
         else {
+          goneThrough = true;
+        }
+
+        overload++;
+        if (overload > 1000) {
           goneThrough = true;
         }
       }
