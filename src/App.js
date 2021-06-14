@@ -15,9 +15,10 @@ import Nav from 'react-bootstrap/Nav';
 function App() {
   return (
     <div className="app-body">
-      <Navbar expand="lg">
+      <Navbar expand="md">
         <Navbar.Brand href="/">Mindless Progression</Navbar.Brand>
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
+        {!!sessionStorage.getItem('name') && <p className="header-name">Name: {sessionStorage.getItem('name')} </p>}
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="justify-content-end" style={{ width: "100%" }}>
             <Nav.Link href="/">New Game</Nav.Link>

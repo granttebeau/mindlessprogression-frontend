@@ -77,3 +77,18 @@
   width: 100px !important;
   margin: 0 auto !important;
 }
+
+.header-name {
+  color: white;
+  font-size: 18px;
+  margin-top: 16px;
+  position: absolute;
+  left: 46%;
+}
+
+
+@media (max-width: 768px) {
+  .header-name {
+    display: none;
+  }
+}

@@ -21,6 +21,10 @@ th {
     width: 120px;
 }
 
+button:disabled {
+    opacity: 1 !important;
+}
+
 @media (max-width: 850px) {
     .draw-pile {
         height: 120px !important;

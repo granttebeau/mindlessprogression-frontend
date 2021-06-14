@@ -644,7 +644,6 @@ class MindlessPlay extends React.Component {
       
       return (
         <div className="App">
-          <h1>Play Mindless Progression</h1>
 
           {!!this.state.chosenTurn && this.state.roundStarted && <h4>Round: {this.state.chosenTurn}</h4>}
           <div style={{marginTop: '40px', height: '40px'}}>
