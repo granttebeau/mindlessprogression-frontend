@@ -60,6 +60,7 @@ class Mindless extends Component {
       });
 
       socket.on('new user', (usr) => {
+        console.log(usr);
         self.setState({
           users: usr.filter(val => val.name !== sessionStorage.getItem("name")),
           selectValue: usr.length > 1 ? usr.filter(val => val.name !== sessionStorage.getItem("name"))[0].id : ""

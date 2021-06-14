@@ -15,7 +15,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '6', 
+        chosenTurn: '8', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
@@ -389,21 +389,20 @@ class MindlessPlay extends React.Component {
         if (this.set(card, tempHand)) {
           let curSetTemp = [...tempHand.filter(val => this.cardSetEquals(val, card))], 
               curSet = [];
-          for (var j = 0; j < curSetTemp.length; j++) {
+          for (let j = 0; j < curSetTemp.length; j++) {
             let sameSuits = [...tempHand.filter(val => this.cardSuitEquals(val, curSetTemp[j]) && !this.cardSetEquals(val, curSetTemp[j]) && !this.wildCard(val))]
             sameSuits = sameSuits.concat(tempHand.filter(val => this.wildCard(val)));
-            console.log(sameSuits);
-            if (sameSuits.length < 2) {
+            if (!this.straight(curSetTemp[j], sameSuits)) {
               curSet.push(curSetTemp[j]);
             }
           }
 
-
-          for (var j = 0; j < curSet.length; j++) {
+          for (let j = 0; j < curSet.length; j++) {
             let card = curSet[j];
             let ind = tempHand.findIndex(cur => card.suit === cur.suit && card.number === cur.number)
             tempHand.splice(ind, 1);
           }
+
 
           if (curSet.length === 2) {
             let left = [...tempHand.filter(val => this.cardSetEquals(val, card))];
@@ -416,6 +415,7 @@ class MindlessPlay extends React.Component {
             }
           }
 
+          // goneThrough = true;
           if (tempHand.length === 0) {
             won = true;
             goneThrough = true;
@@ -459,6 +459,7 @@ class MindlessPlay extends React.Component {
 
         overload++;
         if (overload > 1000) {
+          console.log("OVERLOADED", tempHand);
           goneThrough = true;
         }
       }

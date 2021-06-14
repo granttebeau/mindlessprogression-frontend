@@ -9,10 +9,35 @@ class DisplayHand extends Component {
     constructor(props) {
       super(props);
       this.state = {
-        hand: props.hand
+        hand: props.hand,
+        horizontal: true
       }
 
       this.handleDrag = this.handleDrag.bind(this);
+      this.updateDimensions = this.updateDimensions.bind(this);
+    }
+
+    updateDimensions() {
+      let factor = window.innerWidth > 850 ? 100 : (window.innerWidth < 675 ? 60 : 80);
+      factor = factor * this.state.hand.length;
+      if (factor >= (window.innerWidth - 150)) {
+        document.querySelectorAll('li').forEach(card => {
+          if (!card.classList.contains('playing-card')) {
+            card.classList.add('playing-card');
+          }
+        })
+      }
+      else {
+        document.querySelectorAll('li').forEach(card => {
+          if (card.classList.contains('playing-card')) {
+            card.classList.remove('playing-card');
+          }
+        })
+      }
+    };
+
+    componentDidMount() {
+      window.addEventListener('resize', this.updateDimensions);
     }
 
     componentDidUpdate(prev) {
@@ -62,18 +87,21 @@ class DisplayHand extends Component {
         <Draggable key={id} draggableId={id} index={ind}>
         {(provided) => (
           <li className="card" key={id} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-          <img alt={'card ' + card.number + card.suit} src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.throwAway(card) }}></img>
-        </li>
+            <img className="in-play" alt={'card ' + card.number + card.suit} src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.throwAway(card) }}></img>
+          </li>
         )}
       </Draggable>
       )
     })
+
+
       return (
         <div className="App">
+          
           <DragDropContext onDragEnd={this.handleDrag}>
-            <Droppable droppableId="cards" direction="horizontal">
+            <Droppable droppableId="cards" direction={this.state.horizontal ? 'horizontal' : ''}>
               {(provided) => 
-                <ul className="cards" {...provided.droppableProps} ref={provided.innerRef}>
+                <ul className="cards" style={{width: this.state.hand.length > 10 ? '90%' : '98%'}} {...provided.droppableProps} ref={provided.innerRef}>
                   {cards}
                   {provided.placeholder}
                 </ul>

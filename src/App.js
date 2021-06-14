@@ -52,23 +52,30 @@ function MindlessProgression() {
     rendered = <Mindless></Mindless>
   }
   else {
-    rendered = <div>
-      <h1>Enter name:</h1>
+    rendered = <div style={{marginTop: '15%'}}>
+      <h4>Enter your name to get started!</h4>
       <form onSubmit={e => {handleSubmit(e)}}>
+        <div className="input-group mb-3">
         <input 
             name='name' 
             type='text'
+            placeholder="Your Name"
             onChange={e => setName(e.target.value)}
+            style={{margin: '0 auto'}}
           />
+        </div>
+        
           <input 
           className='submitButton'
           type='submit' 
-          value='Submit' 
+          value='Start Playing' 
+          className="btn btn-primary"
         />
       </form>
     </div>
   }
 
+  // TO DO: check if the name is already taken- there's an issue with the sockets where an error is thrown with the same name
   const handleSubmit= (e) => {
     e.preventDefault();
     sessionStorage.setItem("name", name);
