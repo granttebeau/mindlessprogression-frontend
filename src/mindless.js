@@ -11,36 +11,18 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import CheckIcon from '@material-ui/icons/Check';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 
 class Mindless extends Component {
     constructor(props) {
       super(props);
-      this.state = {users: [], name: '', selectValue: '', invite: false, inviteGames: [], invitesSent: []};
+      this.state = {users: [], name: '', selectValue: '', invite: false, inviteGames: [], invitesSent: [], loadingGame: false};
       this.challengePlayer = this.challengePlayer.bind(this);
       this.accept = this.accept.bind(this);
       this.sentInvite = this.sentInvite.bind(this);
       sessionStorage.setItem("started", false);
     }
-
-    // joinGame(event) {
-    //   event.preventDefault();
-
-    //   let opponent = this.state.users.filter(val => val.id === this.state.selectValue)[0];
-      
-    //   sessionStorage.setItem("opponent_name", opponent.name);
-    //   sessionStorage.setItem("opponent_id", opponent.id);
-    //   sessionStorage.setItem("started", true);
-
-    //   socket.emit('new game', {"playerOne": socket.id, "playerOne_name": sessionStorage.getItem("name"), "playerTwo": sessionStorage.getItem("opponent_id"), "room": sessionStorage.getItem('name') + '-' + sessionStorage.getItem("opponent_name")})
-      
-    //   const { history: { push } } = this.props;
-    //   socket.on("joined", (game) => {
-    //     console.log("JOINED");
-    //     sessionStorage.setItem("room", game.room);
-    //     push('/play')
-    //   })
-    // }
 
     accept(ind) {
       socket.emit("joining", this.state.inviteGames[ind])
@@ -48,7 +30,13 @@ class Mindless extends Component {
       sessionStorage.setItem("opponent_name", this.state.inviteGames[ind].playerOne_name);
       sessionStorage.setItem("opponent_id", this.state.inviteGames[ind].playerOne)
       const { history: { push } } = this.props;
-      push('/play')
+      this.setState({
+        loadingGame: true
+      }, () => {
+        setTimeout(() => {
+          push('/play');
+        }, 1500);
+      })
     }
 
 
@@ -70,7 +58,13 @@ class Mindless extends Component {
       const { history: { push } } = this.props;
       socket.on("joined", (game) => {
         sessionStorage.setItem("room", game.room);
-        push('/play')
+        this.setState({
+          loadingGame: true
+        }, () => {
+          setTimeout(() => {
+            push('/play');
+          }, 1500);
+        })
       })
     }
 
@@ -114,8 +108,16 @@ class Mindless extends Component {
     render() {
       return (
         <div className="App">
-          <h4>Start a new game!</h4>
-          <br></br>
+          {this.state.loadingGame ? 
+            <div style={{marginTop: '40px'}}>
+              <h4>Loading game with {sessionStorage.getItem('name')}</h4>
+              <br></br>
+              <CircularProgress style={{width: '75px', height: '75px'}}/>
+            </div>
+          : 
+            <div>
+              <h4>Start a new game!</h4>
+              <br></br>
 
             {!!this.state.invite && 
             this.state.inviteGames.map((game, ind) => (
@@ -129,7 +131,7 @@ class Mindless extends Component {
                   <TableRow>
                     <TableCell style={{fontWeight: 'bold', width: '33%'}}>Player Name</TableCell>
                     <TableCell style={{fontWeight: 'bold', width: '0%'}} align="right"></TableCell>
-                    <TableCell style={{fontWeight: 'bold', width: '67%'}} align="right">Challenge Player</TableCell>
+                    <TableCell style={{fontWeight: 'bold', width: '67%'}} align="right">Invite Player</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -142,12 +144,12 @@ class Mindless extends Component {
                       </TableCell>
                       <TableCell align="right">
                         <div style={{display: 'inline'}}>
-                          <p style={{display: 'inline-block', marginRight: '40px'}}>{this.sentInvite(usr.id) ? 'Invite sent' : ''}</p>
+                          <p style={{display: 'inline-block', marginRight: '40px'}}>{this.sentInvite(usr.id) ? 'Awaiting response...' : ''}</p>
                           <button style={{display: 'inline-block'}} 
                                   className={this.sentInvite(usr.id) ? "btn btn-success" : "btn btn-primary"} 
                                   onClick={() => { this.challengePlayer(usr.id) }}
                                   disabled={this.sentInvite(usr.id)}>
-                              {this.sentInvite(usr.id) && <CheckIcon/>} Challenge
+                              {this.sentInvite(usr.id) && <CheckIcon/>} {this.sentInvite(usr.id) ? 'Invite Sent' : 'Invite'}
                           </button>
                         </div>
                         
@@ -157,6 +159,8 @@ class Mindless extends Component {
                 </TableBody>
               </Table>
             </TableContainer>
+            </div>
+          }
         </div>
       );
     }

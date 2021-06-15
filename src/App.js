@@ -11,6 +11,9 @@ import {
 
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
+import axios from 'axios';
+import {confirmAlert} from 'react-confirm-alert';
+
 
 function App() {
   return (
@@ -79,9 +82,30 @@ function MindlessProgression() {
   // TO DO: check if the name is already taken- there's an issue with the sockets where an error is thrown with the same name
   const handleSubmit= (e) => {
     e.preventDefault();
-    sessionStorage.setItem("name", name);
-    setState({});
-    window.location.href = "/";
+    axios.get('/api/users').then(res => {
+      console.log("USERS", res.data);
+      // TO DO: have an error message instead of the popup
+      if (res.data.filter(val => name === val).length > 0) {
+        confirmAlert({
+          buttons: [
+            {
+              label: "Close",
+            },
+          ],
+          childrenElement: () => (
+            <div>
+              <h4>Name already taken, try again</h4>
+            </div>
+          ),
+        });
+      } 
+      else {
+        sessionStorage.setItem("name", name);
+        setState({});
+        window.location.href = "/";
+      }
+    })
+  
   }
 
   return (
