@@ -82,7 +82,10 @@ function MindlessProgression() {
   // TO DO: check if the name is already taken- there's an issue with the sockets where an error is thrown with the same name
   const handleSubmit= (e) => {
     e.preventDefault();
-    axios.get('/api/users').then(res => {
+
+    // TO DO: set the url based on node env- the long heroku api url should work in prod i think
+    let url = process.env.NODE_ENV === "development" ? '/api/users' : 'https://mindlessprogression-backend.herokuapp.com/users';
+    axios.get(url).then(res => {
       console.log("USERS", res.data);
       // TO DO: have an error message instead of the popup
       if (res.data.filter(val => name === val).length > 0) {
