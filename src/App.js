@@ -84,9 +84,8 @@ function MindlessProgression() {
     e.preventDefault();
 
     // TO DO: set the url based on node env- the long heroku api url should work in prod i think
-    let url = process.env.NODE_ENV === "development" ? '/api/users' : 'https://mindlessprogression-backend.herokuapp.com/users';
+    let url = process.env.NODE_ENV === "development" ? 'http://localhost:8000/api/users' : 'https://mindlessprogression-backend.herokuapp.com/api/users';
     axios.get(url).then(res => {
-      console.log("USERS", res.data);
       // TO DO: have an error message instead of the popup
       if (res.data.filter(val => name === val).length > 0) {
         confirmAlert({
