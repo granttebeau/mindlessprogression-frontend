@@ -15,7 +15,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '8', 
+        chosenTurn: '3', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
@@ -46,6 +46,7 @@ class MindlessPlay extends React.Component {
     }
   
     componentDidMount() {
+  
       this.setState({
         name: sessionStorage.getItem('name'),
         opponent: {
@@ -140,6 +141,24 @@ class MindlessPlay extends React.Component {
           sessionStorage.setItem("room", hand.room)
         })
       })
+
+      socket.on("player left", () => {
+        confirmAlert({
+          buttons: [
+            {
+              label: "Go to Home Page",
+              onClick: () => {
+                window.location.href = "/";
+              }
+            },
+          ],
+          childrenElement: () => (
+            <div>
+              <h4>Lost connection with {this.state.opponent.name}.</h4>
+            </div>
+          ),
+        });
+      })
     }
 
     handleSelect(event) {
@@ -151,7 +170,6 @@ class MindlessPlay extends React.Component {
         gameOver: false
       }, () => {
         socket.emit("restart game", {playerOne: socket.id, playerTwo: this.state.opponent.id, room: sessionStorage.getItem("room")});
-        
       })
     }
 
@@ -164,7 +182,6 @@ class MindlessPlay extends React.Component {
           <td>{this.state.opponentScores[i]}</td>
       </tr>)
       }
-      console.log(this.state.rounds);
 
       confirmAlert({
         title: "Scores",

@@ -12,8 +12,6 @@ import {
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
-import {confirmAlert} from 'react-confirm-alert';
-
 
 function App() {
   return (
@@ -51,11 +49,13 @@ function App() {
 function MindlessProgression() {
   let rendered;
   const [name, setName] = useState();
+  const [invalidName, setInvalidName] = useState(false);
   let  [,setState]=useState();
   if (sessionStorage.getItem("name") !== null) {
     rendered = <Mindless></Mindless>
   }
   else {
+    // TO DO: have a way to edit name
     rendered = <div style={{marginTop: '15%'}}>
       <h4>Enter your name to get started!</h4>
       <form onSubmit={e => {handleSubmit(e)}}>
@@ -64,11 +64,15 @@ function MindlessProgression() {
             name='name' 
             type='text'
             placeholder="Your Name"
-            onChange={e => setName(e.target.value)}
+            onChange={e => {
+              setName(e.target.value)
+              setInvalidName(false);
+            }
+            }
             style={{margin: '0 auto'}}
           />
         </div>
-        
+        {invalidName && <p style={{color: 'red'}}>Name already taken, try again</p>}
           <input 
           className='submitButton'
           type='submit' 
@@ -76,30 +80,16 @@ function MindlessProgression() {
           className="btn btn-primary"
         />
       </form>
+      <br></br>
     </div>
   }
 
-  // TO DO: check if the name is already taken- there's an issue with the sockets where an error is thrown with the same name
   const handleSubmit= (e) => {
     e.preventDefault();
-
-    // TO DO: set the url based on node env- the long heroku api url should work in prod i think
-    let url = process.env.NODE_ENV === "development" ? 'http://localhost:8000/api/users' : 'https://mindlessprogression-backend.herokuapp.com/api/users';
+    let url = process.env.NODE_ENV === "development" ? '/api/users' : 'https://mindlessprogression-backend.herokuapp.com/api/users';
     axios.get(url).then(res => {
-      // TO DO: have an error message instead of the popup
       if (res.data.filter(val => name === val).length > 0) {
-        confirmAlert({
-          buttons: [
-            {
-              label: "Close",
-            },
-          ],
-          childrenElement: () => (
-            <div>
-              <h4>Name already taken, try again</h4>
-            </div>
-          ),
-        });
+        setInvalidName(true);
       } 
       else {
         sessionStorage.setItem("name", name);
