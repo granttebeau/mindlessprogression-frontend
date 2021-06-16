@@ -51,11 +51,13 @@ class DisplayHand extends Component {
           let empty = inPlay[inPlay.length - 1];
           let card = this.state.hand[this.state.hand.length - 1];
 
-          let url = process.env.NODE_ENV === "development" ? "http://localhost:3000/cards/" + card.number + card.suit + '.svg' : "http://mindlessprogression.com/cards/" + card.number + card.suit + '.svg';
+          // let url = process.env.NODE_ENV !== "development" ? "http://localhost:3000/cards/" + card.number + card.suit + '.svg' : "/cards/" + card.number + card.suit + '.svg';
+          let url = '/cards/' + card.number + card.suit + '.svg';
           let newCard = new Image();
           newCard.src = url;
           newCard.classList.add('in-play-image-new');
           newCard.alt = 'card ' + card.number + card.suit;
+          console.log(newCard);
           // console.log(newCard);
           newCard.onload = (e) => {
             this.animate(newCard).then(res => {
