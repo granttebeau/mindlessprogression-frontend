@@ -289,6 +289,13 @@ class MindlessPlay extends React.Component {
 
           this.setState({
             hand: this.state.hand.concat(nextCard)
+          }, () => {
+            // setTimeout(() => {
+            //   // this.state.nextCard.splice(0, 1);
+            //   this.setState({
+            //     nextCard: this.state.nextCard.slice(1)
+            //   })
+            // }, 500)
           })
         })
       }
