@@ -8,6 +8,28 @@ img {
     left: 0;
 }
 
+.in-play {
+    position: relative;
+    width: 100px;
+    height: 145px;
+    border: none;
+}
+li {
+    border: none !important;
+    margin: 5px;
+}
+
+.in-play-image {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transition: left .5s, top .5s;
+}
+.in-play-image-new {
+    position: absolute;
+    transition: left .5s, top .5s;
+}
+
 ul.cards {
     list-style: none;
     display: flex;
@@ -27,10 +49,19 @@ ul.cards li {
     img {
         width: 80px;
     }
+    .in-play {
+        width: 80px;
+    }
+    ul.cards {
+        margin-left: 0px;
+    }
 }
 
 @media (max-width: 675px) {
     img {
+        width: 60px;
+    }
+    .in-play {
         width: 60px;
     }
 }

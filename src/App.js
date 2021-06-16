@@ -12,6 +12,7 @@ import {
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
+import Test from './test'
 
 function App() {
   return (
@@ -36,6 +37,9 @@ function App() {
             <Route path="/how-to-play">
               <HowToPlay />
             </Route>
+            {/* <Route path="/test">
+              <Test />
+            </Route> */}
             <Route path="/">
               <MindlessProgression />
             </Route>

@@ -10,7 +10,8 @@ class DisplayHand extends Component {
       super(props);
       this.state = {
         hand: props.hand,
-        horizontal: true
+        horizontal: true,
+        extraCard: false
       }
 
       this.handleDrag = this.handleDrag.bind(this);
@@ -43,9 +44,53 @@ class DisplayHand extends Component {
     componentDidUpdate(prev) {
       if (prev.hand.length < this.props.hand.length) {
         this.setState({
-          hand: this.state.hand.concat(this.props.hand[this.props.hand.length - 1])
+          hand: this.state.hand.concat(this.props.hand[this.props.hand.length - 1]), 
+          extraCard: true
+        }, () => {
+          let inPlay = document.querySelectorAll('.in-play');
+          let empty = inPlay[inPlay.length - 1];
+          let card = this.state.hand[this.state.hand.length - 1];
+
+          let url = process.env.NODE_ENV === "development" ? "http://localhost:3000/cards/" + card.number + card.suit + '.svg' : "http://mindlessprogression.com/cards/" + card.number + card.suit + '.svg';
+          let newCard = document.createElement('img');
+          newCard.src = url;
+          newCard.classList.add('in-play-image-new');
+          newCard.alt = 'card ' + card.number + card.suit;
+
+          console.log(this.props);
+          let drawCard;
+          if (this.props.draw) {
+            drawCard = document.querySelector('.draw-card');
+          }
+          else {
+            drawCard = document.querySelector('.draw-pile');
+          }
+
+          newCard.style.top = '-' + (empty.getBoundingClientRect().y - drawCard.getBoundingClientRect().y) + 'px';
+          newCard.style.left = '-' + (empty.getBoundingClientRect().left - drawCard.getBoundingClientRect().left) + 'px';
+          empty.appendChild(newCard);
+        
+          this.animate(newCard).then(res => {
+            setTimeout(() => {
+              this.setState({
+                extraCard: false
+              })
+            }, 500)
+          })
+
         })
       }
+    }
+
+    animate(card) {
+      return new Promise(resolve => {
+        setTimeout(() => {
+          card.style.top = '0px';
+          card.style.left = '0px';
+          resolve("animate");
+        }, 1)
+      })
+      
     }
 
     reorder(list, startIndex, endIndex) {
@@ -73,21 +118,44 @@ class DisplayHand extends Component {
     }
 
     throwAway(card) {
-      let index = this.state.hand.findIndex(cur => cur.suit === card.suit && cur.number === card.number);
-      this.state.hand.splice(index, 1);
-      this.props.throwAway(card)
+      let inPlay = Array.from(document.querySelectorAll('.in-play img'));
+      let index;
+      if (inPlay.length !== this.state.hand.length) {
+        inPlay.splice(0, this.state.hand.length);
+        index = this.state.hand.findIndex(cur => cur.suit === card.suit && cur.number === card.number) - 1;
+      }
+      else {
+        index = this.state.hand.findIndex(cur => cur.suit === card.suit && cur.number === card.number);
+      }
+      
+      let thrownCard = inPlay[index];
+      let drawCard = document.querySelector('.draw-card');
+
+      thrownCard.style.top = (drawCard.getBoundingClientRect().y - thrownCard.getBoundingClientRect().y) + 'px';
+      thrownCard.style.left = (drawCard.getBoundingClientRect().left - thrownCard.getBoundingClientRect().left) + 'px';
+
+      setTimeout(() => {
+        this.state.hand.splice(index, 1);
+        this.props.throwAway(card)
+      }, 500)
+    
     }
 
   
     render() {
-
+    let maxInd = this.state.hand.length - 1;
     let cards = this.state.hand.map((card, ind) => {
       let id = uuid();
       return (
         <Draggable key={id} draggableId={id} index={ind}>
         {(provided) => (
           <li className="card" key={id} ref={provided.innerRef} {...provided.draggableProps} {...provided.dragHandleProps}>
-            <img className="in-play" alt={'card ' + card.number + card.suit} src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'} onClick={() => { this.throwAway(card) }}></img>
+            <div className="in-play" onClick={() => { this.throwAway(card) }}>
+              {
+                (ind < maxInd || (!this.state.extraCard && maxInd === ind)) && 
+                <img className="in-play-image" alt={'card ' + card.number + card.suit} src={process.env.PUBLIC_URL + '/cards/' + card.number + card.suit + '.svg'}></img>
+              }
+            </div>
           </li>
         )}
       </Draggable>

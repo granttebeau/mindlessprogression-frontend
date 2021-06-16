@@ -1,6 +1,9 @@
 
 .deck {
     display: inline-block;
+    height: 175px;
+    width: 18%;
+    position: relative;
 }
 
 .deck img {
@@ -9,12 +12,20 @@
     cursor: pointer;
 }
 .draw-pile {
-    height: 150px !important;
+    position: absolute;
+    left: 4%;
+    top: 0px;
+    width: 100px;
+    height: auto !important;
+    transition: left 1s, top 1s;
 }
 
 .draw-card {
-    position: relative;
-    top: 1px;
+    position: absolute;
+    left: 54%;
+    top: 0px;
+    width: 100px;
+    transition: left 1s, top 1s;
 }
 
 th {
@@ -25,14 +36,41 @@ button:disabled {
     opacity: 1 !important;
 }
 
+@media (max-width: 1150px) {
+    .deck {
+        width: 22%;
+    }
+}
+
+@media (max-width: 975px) {
+    .deck {
+        width: 25%;
+    }
+}
+
 @media (max-width: 850px) {
+    .deck {
+        height: 125px;
+    }
     .draw-pile {
-        height: 120px !important;
-    } 
+        width: 80px;
+    }
+    
+    .draw-card {
+        width: 80px;
+    }
 }
 
 @media (max-width: 675px) {
+    .deck {
+        width: 24%;
+        height: 100px;
+    }
     .draw-pile {
-        height: 90px !important;
+        width: 60px;
+    }
+    
+    .draw-card {
+        width: 60px;
     }
 }

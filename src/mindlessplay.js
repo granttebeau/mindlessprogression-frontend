@@ -31,7 +31,8 @@ class MindlessPlay extends React.Component {
         opponentScore: 0,
         opponentScores: [],
         rounds: [],
-        gameOver: false
+        gameOver: false,
+        take: false
       };
 
       this.handleSelect = this.handleSelect.bind(this);
@@ -235,7 +236,8 @@ class MindlessPlay extends React.Component {
           turn: !this.state.picked,
           wonRound: false, 
           chosenTurn: this.state.turnsLeft[0],
-          gameOver: true
+          gameOver: true,
+          lastTurn: false
         })
       }
       else {
@@ -245,6 +247,7 @@ class MindlessPlay extends React.Component {
           turn: !this.state.picked,
           wonRound: false, 
           chosenTurn: this.state.turnsLeft[0],
+          lastTurn: false
         })
       }
     }
@@ -260,9 +263,12 @@ class MindlessPlay extends React.Component {
     }
 
     drawCard() {
+      
       if (this.state.turn && !this.state.drew) {
+        this.moveElement('img.draw-pile');
         this.setState({
-          drew: true
+          drew: true, 
+          take: false
         }, () => {
           let nextCard = this.state.deck.shift();
 
@@ -276,7 +282,8 @@ class MindlessPlay extends React.Component {
     takeCard() {
       if (this.state.turn && !this.state.drew) {
         this.setState({
-          drew: true
+          drew: true, 
+          take: true
         }, () => {
           let nextCard = this.state.nextCard.shift();
 
@@ -321,8 +328,7 @@ class MindlessPlay extends React.Component {
         this.setState({
           drew: false,
           turn: false,
-          nextCard: [card[0], ...this.state.nextCard],
-          lastTurn: false
+          nextCard: [card[0], ...this.state.nextCard]
         }, () => {
           let points = this.getPoints();
           socket.emit("finished round", { nextPlayer: sessionStorage.getItem("opponent_id"), deck: this.state.deck, nextCard: this.state.nextCard, room: sessionStorage.getItem("room"), loserScore: points}); 
@@ -616,6 +622,28 @@ class MindlessPlay extends React.Component {
       }
     }
 
+    moveElement(str) {
+      // let cards = document.querySelectorAll('img.in-play'),
+      //     card = cards[cards.length - 1], 
+      //     selectedCard = document.querySelector(str);
+      // console.log(selectedCard.getBoundingClientRect(), card.getBoundingClientRect());
+      // // let img = document.querySelector('img.draw-pile'),
+      // //     sourceX = img.offsetLeft,
+      // //     sourceY = img.offsetTop;
+
+      // selectedCard.style.top = selectedCard.getBoundingClientRect().height + 'px';
+      // selectedCard.style.left = selectedCard.getBoundingClientRect().left + 'px';
+
+      // // let img2 = document.querySelector('img.draw-pile2'),
+      // //     destX = img2.offsetLeft,
+      // //     destY = img2.offsetTop;
+      // selectedCard.style.top = card.getBoundingClientRect().height + 'px';
+      // selectedCard.style.left = card.getBoundingClientRect().left + 'px';
+
+      // img.style.top = destY + 'px';
+      // img.style.left = destX + 'px';
+  }
+
     render() {
       let value;
       if (this.state.gameOver) {
@@ -631,17 +659,27 @@ class MindlessPlay extends React.Component {
       }
       else if (this.state.roundStarted) {
 
+        // TO DO: figure out animations for card drawing based on round- maybe move it to the display hand??
+        // another idea: have a "move" log where you can see what each user does for each round. this in addition to seeing the outcome of the user's move.
+        // once you get the user's move functionality down (ie you can see what they took), it would be relatively simple to get the animations going for this. just 
+        // make each card position: absolute. I want to have at least some animation in there
+
+        // another idea- have this logic in the display hand page. create the position: absolute element once the button is clicked so that it's able to animate. 
+        // in addition, when the user clicks the draw card, the component will use document.query selector to get it and then pull it and use 'appendChild' to put it in the correct 
+        // element. Then, it'll change the styling to fit with what it needs (should be as simple as removing/adding a class).
+        // you can also just put each of the images in a div with the correct styling and then have the images be position: absolute. this would make the above easy as fuck
         value = (
           <div>
             {this.state.turn ? <h1>Your Turn</h1> : <h1>{sessionStorage.getItem("opponent_name")}'s turn</h1>}
+            
             <div className="deck">
               <img alt="draw pile" src={process.env.PUBLIC_URL + '/cards/back.png'} onClick={this.drawCard} className="draw-pile"></img>
               {!!this.state.nextCard.length ? 
                 <img alt="next card" src={process.env.PUBLIC_URL + '/cards/' + this.state.nextCard[0].number + this.state.nextCard[0].suit + '.svg'} onClick={this.takeCard} className="draw-card"></img> 
-                : <div></div>}
+                : <div className="draw-card"></div>}
             </div>
             
-            <DisplayHand hand={this.state.hand} throwAway={this.throwAwayCard}></DisplayHand>
+            <DisplayHand hand={this.state.hand} throwAway={this.throwAwayCard} draw={this.state.take}></DisplayHand>
           </div>
         
         )
