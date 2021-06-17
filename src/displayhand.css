@@ -51,6 +51,7 @@ ul.cards li {
     }
     .in-play {
         width: 80px;
+        height: 120px;
     }
     ul.cards {
         margin-left: 0px;
@@ -63,5 +64,6 @@ ul.cards li {
     }
     .in-play {
         width: 60px;
+        height: 90px;
     }
 }

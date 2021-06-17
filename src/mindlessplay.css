@@ -32,6 +32,15 @@ th {
     width: 120px;
 }
 
+.scores-container {
+    margin-top: 40px;
+    height: 40px;
+}
+
+.full-score {
+    margin-left: -45px;
+}
+
 button:disabled {
     opacity: 1 !important;
 }
@@ -59,6 +68,18 @@ button:disabled {
     .draw-card {
         width: 80px;
     }
+    .score {
+        float: none !important;
+        margin: 0 auto !important;
+    }
+    .scores-container {
+        height: 100px;
+    }
+    .full-score {
+        margin-left: 0px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+    }
 }
 
 @media (max-width: 675px) {
@@ -72,5 +93,19 @@ button:disabled {
     
     .draw-card {
         width: 60px;
+    }
+}
+
+@media (max-width: 450px) {
+    .deck {
+        width: 38%;
+        height: 100px;
+    }
+}
+
+@media (max-width: 300px) {
+    .deck {
+        width: 44%;
+        height: 100px;
     }
 }

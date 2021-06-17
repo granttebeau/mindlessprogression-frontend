@@ -391,6 +391,8 @@ class MindlessPlay extends React.Component {
       return score;
     }
 
+    // TO DO: figure out issue with wild cards- screenshots
+    // TO DO: I lost one round too early, we had one round left and it went automatically to "YOU LOST"
     hasWon() {
     
       let tempHand = [...this.state.hand],
@@ -692,7 +694,8 @@ class MindlessPlay extends React.Component {
         )
       }
       else if (!!this.state.turn && this.state.turnsLeft.length > 0) {
-        value = <div>
+        value = <div style={{marginTop: '20px'}}>
+            <h1>Select round</h1>
             <select className="form-select form-select-sm select-form" value={this.state.chosenTurn} onChange={this.handleSelect}>
             {this.state.turnsLeft.map((turn, ind) => <option key={ind} value={turn}>{turn}</option>)}
           </select>
@@ -708,15 +711,16 @@ class MindlessPlay extends React.Component {
         <div className="App">
 
           {!!this.state.chosenTurn && this.state.roundStarted && <h4>Round: {this.state.chosenTurn}</h4>}
-          <div style={{marginTop: '40px', height: '40px'}}>
-            <p style={{float: 'left', marginLeft: '100px'}}>{this.state.name} (You): {this.state.playerScore}</p>
-            <a onClick={this.openFullScore} style={{width: '20%', left: '40%', position: 'absolute', cursor: 'pointer', textDecoration: 'underline'}}>Full Score</a>
-            <p style={{float: 'right', marginRight: '100px'}}>{this.state.opponent.name}: {this.state.opponentScore}</p>
+          <div className="scores-container">
+            <p className="score" style={{float: 'left', marginLeft: '100px'}}>{this.state.name} (You): {this.state.playerScore}</p>
+            <button className="full-score btn btn-primary" onClick={this.openFullScore}  type="button">Full Score</button>
+            {/* <a className="full-score" onClick={this.openFullScore} style={{width: '20%', cursor: 'pointer', textDecoration: 'underline'}}>Full Score</a> */}
+            <p className="score" style={{float: 'right', marginRight: '100px'}}>{this.state.opponent.name}: {this.state.opponentScore}</p>
           </div>
           
 
           {this.state.lastTurn && 
-          <div>
+          <div style={{marginTop: '20px'}}>
             <h1>{sessionStorage.getItem("opponent_name")} won!</h1>
             <DisplayHand hand={this.state.opponentHand} throwAway={this.throwAwayCard}></DisplayHand>
           </div>
