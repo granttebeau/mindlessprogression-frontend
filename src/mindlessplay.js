@@ -15,7 +15,7 @@ class MindlessPlay extends React.Component {
         name: '', 
         opponent: {name: ''}, 
         turn: '', 
-        chosenTurn: '3', 
+        chosenTurn: 'Q', 
         turnsLeft: [], 
         roundStarted: false, 
         drew: false, 
@@ -265,7 +265,6 @@ class MindlessPlay extends React.Component {
     drawCard() {
       
       if (this.state.turn && !this.state.drew) {
-        this.moveElement('img.draw-pile');
         this.setState({
           drew: true, 
           take: false
@@ -391,7 +390,6 @@ class MindlessPlay extends React.Component {
       return score;
     }
 
-    // TO DO: figure out issue with wild cards- screenshots
     // TO DO: I lost one round too early, we had one round left and it went automatically to "YOU LOST"
     hasWon() {
     
@@ -413,6 +411,7 @@ class MindlessPlay extends React.Component {
       });
       tempHand = nonWild.concat(wild);
 
+      let groups = [];
       let overload = 0;
       
       while (!goneThrough) {
@@ -421,10 +420,18 @@ class MindlessPlay extends React.Component {
         if (this.set(card, tempHand)) {
           let curSetTemp = [...tempHand.filter(val => this.cardSetEquals(val, card))], 
               curSet = [];
+
           for (let j = 0; j < curSetTemp.length; j++) {
-            let sameSuits = [...tempHand.filter(val => this.cardSuitEquals(val, curSetTemp[j]) && !this.cardSetEquals(val, curSetTemp[j]) && !this.wildCard(val))]
-            sameSuits = sameSuits.concat(tempHand.filter(val => this.wildCard(val)));
-            if (!this.straight(curSetTemp[j], sameSuits)) {
+            let sameSuits = [...tempHand.filter(val => this.cardSuitEquals(val, curSetTemp[j]) && !this.cardSetEquals(val, curSetTemp[j]) && !this.wildCard(val))];
+
+            // TO DO: this may still be an issue, figure out the best way to handle how many wild cards to consider. maybe based on length?
+            if (tempHand.findIndex(val => this.wildCard(val)) >= 0) {
+              let ind = tempHand.findIndex(val => this.wildCard(val));
+              sameSuits = sameSuits.concat(tempHand[ind]);
+            }
+            
+            if (!this.straight(curSetTemp[j], sameSuits)
+                || this.getStraight(curSetTemp[j], sameSuits).filter(val => val.suit === curSetTemp[j].suit && val.number === curSetTemp[j].number).length === 0) {
               curSet.push(curSetTemp[j]);
             }
           }
@@ -435,19 +442,14 @@ class MindlessPlay extends React.Component {
             tempHand.splice(ind, 1);
           }
 
+          groups.push(curSet);
 
           if (curSet.length === 2) {
-            let left = [...tempHand.filter(val => this.cardSetEquals(val, card))];
-            if (left.length > 0) {
-              let ind = tempHand.findIndex(val => this.cardSetEquals(val, card))
+              let ind = tempHand.findIndex(card => this.wildCard(card));
+              groups[groups.length - 1].push(tempHand[ind]);
               tempHand.splice(ind, 1);
-            }
-            else {
-              tempHand.splice(tempHand.findIndex(card => this.wildCard(card)), 1);
-            }
           }
 
-          // goneThrough = true;
           if (tempHand.length === 0) {
             won = true;
             goneThrough = true;
@@ -469,8 +471,13 @@ class MindlessPlay extends React.Component {
             tempHand.splice(ind, 1);
           }
 
+
+          groups.push(curSet);
+
           if (curSet.length === 2) {
-            tempHand.splice(tempHand.findIndex(card => this.wildCard(card)), 1);
+            let ind = tempHand.findIndex(card => this.wildCard(card))              
+            groups[groups.length - 1].push(tempHand[ind]);
+            tempHand.splice(ind, 1);
           }
 
           if (tempHand.length === 0) {
@@ -486,6 +493,34 @@ class MindlessPlay extends React.Component {
           
         }
         else {
+          let wildCards = tempHand.filter(val => this.wildCard(val));
+          let removeVals = [];
+          if (wildCards.length > 0) {
+            let hand = [...tempHand];
+            let tempGroups = [...groups]
+            for (var t = 0; t < hand.length; t++) {
+              for (var g = 0; g < tempGroups.length; g++) {
+                let card = hand[t];
+                let group = tempGroups[g];  
+                if (!this.wildCard(card)) {
+                  let ind = group.findIndex(val => card.number === val.number);
+                  if (ind >= 0 && wildCards.length > 1) {
+                    groups.push([card, group[ind], wildCards[0]])
+                    group[ind] = wildCards[0];
+                    wildCards.shift();
+                    removeVals.push(t);
+                  }
+                }
+                
+              }
+            }
+          }
+
+          removeVals.reverse().forEach(val => {
+            tempHand.splice(val, 1);
+          })
+         
+          won = tempHand.every(card => this.wildCard(card));
           goneThrough = true;
         }
 
@@ -521,7 +556,6 @@ class MindlessPlay extends React.Component {
         return cards.filter(card => this.wildCard(card)).length >= 1;
       }
       else  {
-        console.log(arr.length >= 3);
         return arr.length >= 3;
       } 
     }
@@ -631,28 +665,6 @@ class MindlessPlay extends React.Component {
       }
     }
 
-    moveElement(str) {
-      // let cards = document.querySelectorAll('img.in-play'),
-      //     card = cards[cards.length - 1], 
-      //     selectedCard = document.querySelector(str);
-      // console.log(selectedCard.getBoundingClientRect(), card.getBoundingClientRect());
-      // // let img = document.querySelector('img.draw-pile'),
-      // //     sourceX = img.offsetLeft,
-      // //     sourceY = img.offsetTop;
-
-      // selectedCard.style.top = selectedCard.getBoundingClientRect().height + 'px';
-      // selectedCard.style.left = selectedCard.getBoundingClientRect().left + 'px';
-
-      // // let img2 = document.querySelector('img.draw-pile2'),
-      // //     destX = img2.offsetLeft,
-      // //     destY = img2.offsetTop;
-      // selectedCard.style.top = card.getBoundingClientRect().height + 'px';
-      // selectedCard.style.left = card.getBoundingClientRect().left + 'px';
-
-      // img.style.top = destY + 'px';
-      // img.style.left = destX + 'px';
-  }
-
     render() {
       let value;
       if (this.state.gameOver) {
@@ -667,16 +679,6 @@ class MindlessPlay extends React.Component {
         )
       }
       else if (this.state.roundStarted) {
-
-        // TO DO: figure out animations for card drawing based on round- maybe move it to the display hand??
-        // another idea: have a "move" log where you can see what each user does for each round. this in addition to seeing the outcome of the user's move.
-        // once you get the user's move functionality down (ie you can see what they took), it would be relatively simple to get the animations going for this. just 
-        // make each card position: absolute. I want to have at least some animation in there
-
-        // another idea- have this logic in the display hand page. create the position: absolute element once the button is clicked so that it's able to animate. 
-        // in addition, when the user clicks the draw card, the component will use document.query selector to get it and then pull it and use 'appendChild' to put it in the correct 
-        // element. Then, it'll change the styling to fit with what it needs (should be as simple as removing/adding a class).
-        // you can also just put each of the images in a div with the correct styling and then have the images be position: absolute. this would make the above easy as fuck
         value = (
           <div>
             {this.state.turn ? <h1>Your Turn</h1> : <h1>{sessionStorage.getItem("opponent_name")}'s turn</h1>}
