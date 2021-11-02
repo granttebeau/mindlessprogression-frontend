@@ -44,6 +44,13 @@
 
 } */
 
+.App p, ul {
+  margin: 0 50px;
+}
+
+.App li {
+  text-align: left;
+}
 
 .App-header {
   background-color: #282c34;

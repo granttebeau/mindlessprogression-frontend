@@ -12,7 +12,6 @@ import {
 import Navbar from 'react-bootstrap/Navbar';
 import Nav from 'react-bootstrap/Nav';
 import axios from 'axios';
-import Test from './test'
 
 function App() {
   return (
@@ -78,10 +77,9 @@ function MindlessProgression() {
         </div>
         {invalidName && <p style={{color: 'red'}}>Name already taken, try again</p>}
           <input 
-          className='submitButton'
           type='submit' 
           value='Start Playing' 
-          className="btn btn-primary"
+          className="btn btn-primary submitButton"
         />
       </form>
       <br></br>

@@ -3,9 +3,6 @@ import './App.css';
 
 
 class Test extends Component {
-    constructor(props) {
-      super(props);
-    }
 
     moveElement() {
         let img = document.querySelector('img.draw-pile'),
